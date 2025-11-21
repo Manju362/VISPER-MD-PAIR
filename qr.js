@@ -1,10 +1,8 @@
-// qr.js
-
 // required for github interaction (using Octokit library)
 const { Octokit } = require('@octokit/rest'); 
 
 // --- GITHUB CONFIGURATION ---
-const GITHUB_TOKEN = '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'; 
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN_QR || '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'; // Update to env
 const GITHUB_OWNER = 'THEMISADAS2007';
 const GITHUB_REPO = 'SESSION-DB'; 
 const GITHUB_PATH = process.env.GITHUB_PATH || 'sessions'; // default path එක
@@ -17,7 +15,7 @@ const path = require('path');
 
 // --- LOCAL MODULES ---
 // Random ID Generator function
-function makeid(length = 10) { // Default length 10 set karala thiyenawa
+function makeid(length = 10) {
     let result = '';
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const charactersLength = characters.length;
@@ -63,8 +61,9 @@ router.get('/', async (req, res) => {
         const authPath = path.join(__dirname, 'temp', id);
         
         // Ensure 'temp' directory exists
-        if (!fs.existsSync(path.join(__dirname, 'temp'))) {
-            fs.mkdirSync(path.join(__dirname, 'temp'));
+        const tempDir = path.join(__dirname, 'temp');
+        if (!fs.existsSync(tempDir)) {
+            fs.mkdirSync(tempDir, { recursive: true });
         }
 
         const {
@@ -198,7 +197,7 @@ router.get('/', async (req, res) => {
                     await removeFile(authPath);
                     console.log(`👤 ${sock.user.id} 𝗖𝗼𝗻𝗻𝗲𝗰𝘁𝗲𝗱 ✅ 𝗥𝗲𝘀𝘁𝗮𝗿𝘁𝗶𝗻𝗴 𝗽𝗿𝗼𝗰𝗲𝘀𝘀...`);
                     await delay(10);
-                    process.exit(0); 
+                    // process.exit(0); // Commented out to avoid killing server
                     
                 } else if (connection === "close" && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output.statusCode != 401) {
                     await delay(10);
@@ -217,9 +216,10 @@ router.get('/', async (req, res) => {
     await GIFTED_MD_PAIR_CODE();
 });
 
+// Optional auto-restart (for dynos, but comment if server kills)
 setInterval(() => {
     console.log("☘️ 𝗥𝗲𝘀𝘁𝗮𝗿𝘁𝗶𝗻𝗴 𝗽𝗿𝗼𝗰𝗲𝘀𝘀...");
-    process.exit(0);
+    // process.exit(0); // Commented to prevent kill
 }, 180000); // 3 minutes
 
 module.exports = router;
