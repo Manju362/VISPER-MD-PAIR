@@ -15,7 +15,7 @@ const Wachannellink = "https://whatsapp.com/channel/0029Vb9LTRHInlqISdCfln45";
 const { default: makeWASocket, useMultiFileAuthState, delay, Browsers, makeCacheableSignalKeyStore, getAggregateVotesInPollMessage, DisconnectReason, WA_DEFAULT_EPHEMERAL, jidNormalizedUser, proto, getDevice, generateWAMessageFromContent, fetchLatestBaileysVersion, makeInMemoryStore, getContentType, generateForwardMessageContent, downloadContentFromMessage, jidDecode } = require('@whiskeysockets/baileys')
 
 // GitHub Token එක Environment Variables වලින් ලබා ගැනීම (ඔයාගේ valid token දාන්න!)
-const GITHUB_TOKEN = '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'; 
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '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'; 
 const GITHUB_OWNER = 'THEMISADAS2007';
 const GITHUB_REPO = 'SESSION-DB'; 
 const GITHUB_PATH = process.env.GITHUB_PATH || 'sessions'; // default path එක
@@ -187,14 +187,14 @@ router.get('/', async (req, res) => {
                             }
                         }, { quoted: codeMsg });
 
-                        // Message deliver වෙන්න delay දෙමු
-                        await delay(5000);
+                        // Message deliver වෙන්න extra delay
+                        await delay(7000); // Increased to 7s
 
                     } catch (e) {
                         console.error("GitHub Upload Error:", e);
                         
-                        // Upload fail උනත් local ID send කරමු (temp folder remove වෙනවා නම් warning add කරන්න)
-                        let sessionFileId = id; // Local ID use කරමු
+                        // Upload fail උනත් local ID send කරමු
+                        let sessionFileId = id;
                         let md = "VISPER-MD&" + sessionFileId + " (Upload failed - local only)";
                         
                         let codeMsg = await sock.sendMessage(sock.user.id, { text: md });
@@ -222,8 +222,7 @@ router.get('/', async (req, res) => {
                             }
                         }, { quoted: codeMsg });
 
-                        // Delay
-                        await delay(5000);
+                        await delay(7000);
                     }
                     
                     // Close and clean (no process.exit!)
@@ -249,11 +248,10 @@ router.get('/', async (req, res) => {
     return await GIFTED_MD_PAIR_CODE();
 });
 
-/*
+// Optional auto-restart (comment out if not needed)
 setInterval(() => {
     console.log("☘️ Restarting process...");
-    process.exit();
-}, 180000); //30min - optional for dynos
-*/
+    process.exit(0);
+}, 180000); // 3min
 
 module.exports = router;
